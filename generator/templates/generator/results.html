@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BrandVoice AI | Results</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        header {
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #4338ca;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #3730a3;
+        }
+
+        .detail {
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .notice {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tweet {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            margin: 15px 0;
+            background: #fafafa;
+        }
+
+        .tweet-text {
+            line-height: 1.7;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .purpose {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        button,
+        .back-button {
+            display: inline-block;
+            border: none;
+            background: #4338ca;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        button:hover,
+        .back-button:hover {
+            background: #3730a3;
+        }
+
+        .back-button {
+            margin: 10px 0 30px;
+        }
+
+        footer {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+
+        <header>
+            <h1>BrandVoice AI</h1>
+            <p class="subtitle">
+                Your brand voice and social media tweet generator
+            </p>
+        </header>
+
+        {% if error %}
+            <div class="error">
+                <strong>Notice:</strong> {{ error }}
+            </div>
+        {% endif %}
+
+        {% if brand_name %}
+            <section class="card">
+                <h2>{{ brand_name }} — Brand Profile</h2>
+
+                <p class="detail">
+                    <strong>Industry:</strong> {{ industry }}
+                </p>
+
+                <p class="detail">
+                    <strong>Objective:</strong> {{ objective }}
+                </p>
+
+                <p class="detail">
+                    <strong>Products:</strong> {{ products }}
+                </p>
+
+                <p class="detail">
+                    <strong>Target Audience:</strong> {{ audience }}
+                </p>
+
+                <p class="detail">
+                    <strong>Preferred Tone:</strong> {{ tone }}
+                </p>
+
+                <p class="detail">
+                    <strong>Brand Description:</strong>
+                    {{ brand_description }}
+                </p>
+
+                <span class="badge">{{ voice_label }}</span>
+            </section>
+        {% endif %}
+
+        {% if generation_mode %}
+            <div class="notice">
+                <strong>Generation mode:</strong> {{ generation_mode }}
+            </div>
+        {% endif %}
+
+        {% if voice_summary %}
+            <section class="card">
+                <h2>Brand Voice Analysis</h2>
+
+                <ul>
+                    {% for point in voice_summary %}
+                        <li class="detail">{{ point }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
+
+        {% if tweets %}
+            <section class="card">
+                <h2>Tweet Suggestions</h2>
+
+                <p>
+                    Review the suggestions below. Use the copy button
+                    to copy an individual tweet.
+                </p>
+
+                {% for tweet in tweets %}
+                    <article class="tweet">
+                        <h3>Tweet {{ forloop.counter }}</h3>
+
+                        <p class="tweet-text">{{ tweet.text }}</p>
+
+                        <p class="purpose">
+                            <strong>Purpose:</strong>
+                            {{ tweet.purpose }}
+                        </p>
+
+                        <button
+                            type="button"
+                            class="copy-button"
+                            data-tweet="{{ tweet.text }}"
+                        >
+                            Copy Tweet
+                        </button>
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <a href="/" class="back-button">← Back to Form</a>
+
+        <footer>
+            BrandVoice AI — Review all generated content before publishing.
+        </footer>
+
+    </main>
+
+    <script>
+        document.querySelectorAll(".copy-button").forEach(function(button) {
+            button.addEventListener("click", async function() {
+                const tweet = button.getAttribute("data-tweet");
+
+                try {
+                    await navigator.clipboard.writeText(tweet);
+                    button.textContent = "Copied!";
+
+                    setTimeout(function() {
+                        button.textContent = "Copy Tweet";
+                    }, 1500);
+                } catch (error) {
+                    window.prompt("Copy your tweet:", tweet);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

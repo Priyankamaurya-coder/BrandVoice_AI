@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BrandVoice AI | Tweet Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #20243a;
+        }
+
+        header {
+            background: #171a35;
+            color: white;
+            padding: 22px 8%;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 27px;
+        }
+
+        header p {
+            margin-bottom: 0;
+            color: #c8cbea;
+        }
+
+        main {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .intro {
+            margin-bottom: 28px;
+        }
+
+        .intro h2 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .intro p {
+            color: #62677c;
+            line-height: 1.6;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(25, 30, 60, 0.07);
+        }
+
+        .field {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .optional {
+            color: #777d91;
+            font-weight: normal;
+            font-size: 13px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #d9ddea;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid #a5aaff;
+            border-color: #6569e8;
+        }
+
+        button {
+            width: 100%;
+            border: none;
+            border-radius: 9px;
+            padding: 15px;
+            background: #5658d8;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4143bd;
+        }
+
+        .note {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #777d91;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            color: #777d91;
+            padding: 25px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .form-card {
+                padding: 20px;
+            }
+
+            .intro h2 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>BrandVoice AI</h1>
+        <p>AI-powered brand voice analysis and tweet generation</p>
+    </header>
+
+    <main>
+        <section class="intro">
+            <h2>Create tweets that sound like your brand.</h2>
+
+            <p>
+                Describe your brand, choose your campaign objective,
+                and let AI generate 10 tweets tailored to your brand's
+                personality and communication style.
+            </p>
+        </section>
+
+        <section class="form-card">
+
+            <form method="POST" action="{% url 'generate_tweets' %}">
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="brand_name">
+                        Brand Name
+                        <span class="optional">(Optional)</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="brand_name"
+                        name="brand_name"
+                        placeholder="e.g. Nike, Starbucks"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="industry">
+                        Industry / Category
+                        <span class="optional">(Optional)</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="industry"
+                        name="industry"
+                        placeholder="e.g. Sportswear, Food, Technology"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="objective">Campaign Objective *</label>
+
+                    <select id="objective" name="objective" required>
+                        <option value="">Select an objective</option>
+                        <option value="Engagement">Engagement</option>
+                        <option value="Promotion">Promotion</option>
+                        <option value="Brand Awareness">Brand Awareness</option>
+                        <option value="Product Launch">Product Launch</option>
+                        <option value="Education">Education</option>
+                        <option value="Community Building">
+                            Community Building
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="products">Products / Services *</label>
+
+                    <textarea
+                        id="products"
+                        name="products"
+                        placeholder="Describe your products, services, features, or benefits."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="audience">
+                        Target Audience
+                        <span class="optional">(Optional)</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="audience"
+                        name="audience"
+                        placeholder="e.g. Students, professionals, athletes"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="tone">
+                        Preferred Brand Tone
+                        <span class="optional">(Optional)</span>
+                    </label>
+
+                    <select id="tone" name="tone">
+                        <option value="">Let AI infer the tone</option>
+                        <option value="Witty">Witty</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Humorous">Humorous</option>
+                        <option value="Informative">Informative</option>
+                        <option value="Bold">Bold</option>
+                        <option value="Minimal">Minimal</option>
+                        <option value="Friendly">Friendly</option>
+                        <option value="Inspirational">Inspirational</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="brand_description">
+                        Additional Brand Information
+                        <span class="optional">(Optional)</span>
+                    </label>
+
+                    <textarea
+                        id="brand_description"
+                        name="brand_description"
+                        placeholder="Describe the brand personality, preferred writing style, or important campaign details."
+                    ></textarea>
+                </div>
+
+                <button type="submit">
+                    Generate 10 Tweets
+                </button>
+
+                <p class="note">
+                    AI-generated content should be reviewed for accuracy
+                    and brand suitability before publication.
+                </p>
+
+            </form>
+
+        </section>
+    </main>
+
+    <footer>
+        BrandVoice AI | Intelligent Content Generation
+    </footer>
+
+</body>
+</html>
