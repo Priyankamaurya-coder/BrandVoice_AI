@@ -1,46 +1,70 @@
 
 import json
 import os
+import re
 
 from django.shortcuts import render
-from dotenv import load_dotenv
 from google import genai
 
-load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-# True  = Use predefined sample tweets without API calls.
-# False = Generate tweets using Gemini AI.
-DEMO_MODE = True
+# Read the Gemini API key from environment variables.
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 
 def home(request):
-    """Display the brand details form."""
+    """Display the BrandVoice AI input form."""
     return render(request, "generator/home.html")
 
 
 def generate_tweets(request):
-    """Analyze brand details and generate 10 tweet suggestions."""
+    """Generate brand-specific tweets using Gemini AI."""
 
     if request.method != "POST":
         return render(request, "generator/home.html")
 
-    # --------------------------------------------------
-    # 1. Read form data
-    # --------------------------------------------------
-
+    # Collect form inputs.
     brand_name = request.POST.get("brand_name", "").strip()
     industry = request.POST.get("industry", "").strip()
     objective = request.POST.get("objective", "").strip()
     products = request.POST.get("products", "").strip()
     audience = request.POST.get("audience", "").strip()
-    tone = request.POST.get("tone", "").strip()
+    tone = request.POST.get("tone", "AI Infer").strip()
     brand_description = request.POST.get(
         "brand_description", ""
     ).strip()
 
-    context = {
+    # Validate required fields.
+    if not brand_name or not industry or not audience or not tone:
+        return render(
+            request,
+            "generator/home.html",
+            {
+                "error": (
+                    "Please fill in the brand name, industry, "
+                    "target audience, and tone."
+                )
+            },
+        )
+
+    # Provide defaults for optional fields.
+    objective = objective or "Brand Awareness"
+    products = products or "General brand offerings"
+    brand_description = (
+        brand_description
+        or "Infer the brand's communication style from the supplied details."
+    )
+
+    # Display the submitted brand information on the results page.
+    voice_summary = [
+        f"Tone: {tone}",
+        f"Target audience: {audience}",
+        f"Campaign objective: {objective}",
+        f"Industry and offerings: {industry}; {products}",
+    ]
+
+    # Shared context ensures the brand description is available
+    # even if AI generation fails.
+    base_context = {
         "brand_name": brand_name,
         "industry": industry,
         "objective": objective,
@@ -48,361 +72,98 @@ def generate_tweets(request):
         "audience": audience,
         "tone": tone,
         "brand_description": brand_description,
-        "voice_label": "Inferred Brand Voice",
+        "voice_summary": voice_summary,
+        "tweets": [],
     }
 
-    # --------------------------------------------------
-    # 2. Validate required fields
-    # --------------------------------------------------
-
-    if not brand_name or not industry or not audience or not tone:
-        context["error"] = (
-            "Please fill in the brand name, industry, "
-            "target audience, and preferred tone."
-        )
-
-        return render(
-            request,
-            "generator/results.html",
-            context,
-        )
-
-    # --------------------------------------------------
-    # 3. Analyze the submitted brand details
-    # --------------------------------------------------
-
-    voice_summary = [
-        (
-            f"The communication style is {tone.lower()} "
-            "and audience-focused."
-        ),
-        (
-            f"The messaging supports the objective: "
-            f"{objective or 'Brand Awareness'}."
-        ),
-        f"The content is designed for {audience}.",
-        (
-            f"The brand focuses on {products}."
-            if products
-            else "The content focuses on the brand's core offering."
-        ),
-    ]
-
-    # --------------------------------------------------
-    # 4. DEMO MODE: Brand-specific sample tweets
-    # --------------------------------------------------
-
-    if DEMO_MODE:
-
-        brand = brand_name.lower()
-
-        # ================ STARBUCKS ================
-
-        if "starbucks" in brand:
-
-            demo_tweets = [
-                {
-                    "text": (
-                        "A little coffee, a little comfort, "
-                        "and a moment just for you. ☕"
-                    ),
-                    "purpose": "Connect coffee with everyday moments.",
-                },
-                {
-                    "text": (
-                        "Good conversations often begin "
-                        "with a cup of coffee."
-                    ),
-                    "purpose": "Encourage connection and conversation.",
-                },
-                {
-                    "text": (
-                        "Your coffee break called. It's time "
-                        "to slow down and enjoy the moment."
-                    ),
-                    "purpose": "Promote a relaxing coffee break.",
-                },
-                {
-                    "text": (
-                        "From your first sip to your last task, "
-                        "make today your own."
-                    ),
-                    "purpose": "Connect coffee with daily routines.",
-                },
-                {
-                    "text": (
-                        "Coffee tastes even better when shared "
-                        "with someone special."
-                    ),
-                    "purpose": "Encourage social connection.",
-                },
-                {
-                    "text": (
-                        "Big plans or quiet moments? "
-                        "There's room for both over coffee."
-                    ),
-                    "purpose": (
-                        "Position coffee as part of everyday experiences."
-                    ),
-                },
-                {
-                    "text": (
-                        "Take a breath, enjoy your favorite cup, "
-                        "and make space for yourself."
-                    ),
-                    "purpose": "Promote a moment of personal comfort.",
-                },
-                {
-                    "text": (
-                        "Catch up with a friend, share a laugh, "
-                        "and let the coffee flow."
-                    ),
-                    "purpose": "Encourage customers to connect over coffee.",
-                },
-                {
-                    "text": (
-                        "Some of life's favorite moments happen "
-                        "one sip at a time."
-                    ),
-                    "purpose": "Build an emotional connection with the brand.",
-                },
-                {
-                    "text": (
-                        "Make your next coffee moment "
-                        "one worth remembering."
-                    ),
-                    "purpose": "Encourage a memorable café experience.",
-                },
-            ]
-
-        # ================= NIKE ====================
-
-        elif "nike" in brand:
-
-            demo_tweets = [
-                {
-                    "text": (
-                        "Every step forward brings you closer "
-                        "to your goals. Keep moving. #JustDoIt"
-                    ),
-                    "purpose": "Inspire people to keep progressing.",
-                },
-                {
-                    "text": (
-                        "Your limits are challenges waiting "
-                        "to be overcome."
-                    ),
-                    "purpose": "Encourage people to challenge their limits.",
-                },
-                {
-                    "text": (
-                        "Greatness begins when you decide to start. "
-                        "Take that first step."
-                    ),
-                    "purpose": "Motivate people to take action.",
-                },
-                {
-                    "text": (
-                        "Train with purpose. Move with confidence. "
-                        "Believe in yourself."
-                    ),
-                    "purpose": "Promote confidence and purposeful training.",
-                },
-                {
-                    "text": (
-                        "The strongest competition is the person "
-                        "you were yesterday."
-                    ),
-                    "purpose": "Encourage personal improvement.",
-                },
-                {
-                    "text": (
-                        "Big goals begin with small steps. "
-                        "Make every effort count."
-                    ),
-                    "purpose": "Connect daily effort with long-term goals.",
-                },
-                {
-                    "text": (
-                        "When the challenge gets tough, "
-                        "remember why you started."
-                    ),
-                    "purpose": "Encourage persistence.",
-                },
-                {
-                    "text": (
-                        "Your journey. Your effort. "
-                        "Your next breakthrough."
-                    ),
-                    "purpose": "Celebrate individual athletic progress.",
-                },
-                {
-                    "text": (
-                        "Don't wait for motivation. "
-                        "Take action and build momentum."
-                    ),
-                    "purpose": "Encourage an active mindset.",
-                },
-                {
-                    "text": (
-                        "Show up, put in the work, "
-                        "and give your goals a chance."
-                    ),
-                    "purpose": "Promote consistency and commitment.",
-                },
-            ]
-
-        # =============== OTHER BRANDS ===============
-
-        else:
-
-            demo_tweets = [
-                {
-                    "text": (
-                        f"Discover what makes {brand_name} "
-                        "part of your everyday story."
-                    ),
-                    "purpose": "Build brand awareness.",
-                },
-                {
-                    "text": (
-                        f"Every day is an opportunity to experience "
-                        f"{brand_name} in a new way."
-                    ),
-                    "purpose": "Encourage customers to explore the brand.",
-                },
-                {
-                    "text": (
-                        f"Your needs, your goals, your journey. "
-                        f"{brand_name} is here to be part of it."
-                    ),
-                    "purpose": "Connect the brand with its audience.",
-                },
-                {
-                    "text": (
-                        f"Make room for more of what matters "
-                        f"with {brand_name}."
-                    ),
-                    "purpose": "Create an emotional connection.",
-                },
-                {
-                    "text": (
-                        f"Looking for something that fits your lifestyle? "
-                        f"Discover {brand_name}."
-                    ),
-                    "purpose": "Encourage brand discovery.",
-                },
-                {
-                    "text": (
-                        f"Small moments can make a big difference. "
-                        f"Make yours count with {brand_name}."
-                    ),
-                    "purpose": "Associate the brand with meaningful moments.",
-                },
-                {
-                    "text": (
-                        f"Get inspired, explore possibilities, "
-                        f"and discover {brand_name}."
-                    ),
-                    "purpose": "Encourage engagement with the brand.",
-                },
-                {
-                    "text": (
-                        f"Your next favorite experience could start "
-                        f"with {brand_name}."
-                    ),
-                    "purpose": "Spark curiosity about the brand.",
-                },
-                {
-                    "text": (
-                        f"Different goals, different journeys, "
-                        f"one place to discover: {brand_name}."
-                    ),
-                    "purpose": "Highlight the brand's relevance.",
-                },
-                {
-                    "text": (
-                        f"What's your next step? Let {brand_name} "
-                        "be part of the journey."
-                    ),
-                    "purpose": "Encourage the audience to take action.",
-                },
-            ]
-
-        context["voice_summary"] = voice_summary
-        context["tweets"] = demo_tweets
-        context["generation_mode"] = (
-            "Demo Mode — Brand-specific sample tweets "
-            "(not generated by AI)"
-        )
-
-        return render(
-            request,
-            "generator/results.html",
-            context,
-        )
-
-    # --------------------------------------------------
-    # 5. LIVE GEMINI AI MODE
-    # --------------------------------------------------
-
+    # Check whether the Gemini API key is configured.
     if not GEMINI_API_KEY:
-        context["error"] = (
-            "Gemini API key not found. "
-            "Please check your .env file."
+        base_context["error"] = (
+            "Gemini API key is not configured. "
+            "Please check the GEMINI_API_KEY environment variable."
         )
 
         return render(
             request,
             "generator/results.html",
-            context,
+            base_context,
         )
 
+    # Prompt Gemini to analyze the supplied brand information.
     prompt = f"""
-You are BrandVoice AI, an expert social media copywriter.
+You are BrandVoice AI, an expert social media strategist and copywriter.
 
-Create exactly 10 original tweets and a brand voice summary.
+Generate exactly 10 original tweets using the information provided below.
 
+BRAND INFORMATION
 Brand name: {brand_name}
 Industry: {industry}
-Objective: {objective}
-Products: {products}
+Campaign objective: {objective}
+Products and services: {products}
 Target audience: {audience}
 Preferred tone: {tone}
 Brand description: {brand_description}
 
-Requirements:
-1. Generate exactly 10 distinct tweets.
-2. Adapt every tweet to this specific brand.
-3. Keep tweets concise and suitable for X.
-4. Match the brand tone, audience, and objective.
-5. Do not invent statistics, offers, or product claims.
-6. Infer brand voice from the submitted information.
-7. Return valid JSON only, without Markdown fences.
+BRAND VOICE ANALYSIS
+Provide exactly 4 concise observations covering:
+1. Brand tone and personality.
+2. Audience and communication style.
+3. Messaging themes and content direction.
+4. Language style and engagement approach.
 
-Use this JSON structure:
+Infer the brand voice only from the information provided.
+Do not claim to have independently analyzed social media accounts.
+
+TWEET VARIETY
+Generate 10 distinct tweets with varied purposes:
+- 2 conversational or engagement-focused tweets.
+- 2 product discovery or promotional tweets.
+- 2 informative or value-driven tweets.
+- 2 witty, playful, or creative tweets.
+- 2 campaign-oriented or community-focused tweets.
+
+Adapt the content to the brand and campaign objective.
+
+QUALITY REQUIREMENTS
+- Keep each tweet within the 280-character limit.
+- Make all 10 tweets meaningfully different.
+- Avoid repetitive openings and ideas.
+- Use relevant calls to action when appropriate.
+- Do not invent statistics, testimonials, discounts, offers,
+  guarantees, or unsupported product claims.
+- Ensure all content suits the supplied brand details.
+- Return valid JSON only, without Markdown code fences.
+
+OUTPUT FORMAT
+Use exactly this structure:
 {{
     "voice_summary": [
-        "Observation 1",
-        "Observation 2",
-        "Observation 3",
-        "Observation 4"
+        "First observation",
+        "Second observation",
+        "Third observation",
+        "Fourth observation"
     ],
     "tweets": [
         {{
             "text": "Tweet text",
-            "purpose": "Tweet purpose"
+            "purpose": "Purpose of the tweet"
         }}
     ]
 }}
+
+The voice_summary must contain exactly 4 strings.
+The tweets array must contain exactly 10 objects.
+Each tweet must contain text and purpose.
 """
 
     try:
+        # Initialize the Gemini client.
         client = genai.Client(
             api_key=GEMINI_API_KEY,
-            http_options={"timeout": 15000},
+            http_options={"timeout": 60000},
         )
 
+        # Generate content using Gemini.
         response = client.interactions.create(
             model="gemini-3.8-flash",
             input=prompt,
@@ -410,72 +171,136 @@ Use this JSON structure:
 
         response_text = (response.output_text or "").strip()
 
-        # Remove Markdown fences if present.
-        if response_text.startswith("```"):
-            response_text = response_text.split("\n", 1)[1]
+        # Remove Markdown fences if returned unexpectedly.
+        response_text = re.sub(
+            r"^```(?:json)?\s*|\s*```$",
+            "",
+            response_text,
+            flags=re.IGNORECASE,
+        ).strip()
 
-            if response_text.endswith("```"):
-                response_text = response_text[:-3].strip()
-
+        # Parse the JSON response.
         data = json.loads(response_text)
 
-        voice_summary = data.get("voice_summary", [])
-        tweets = data.get("tweets", [])
+        generated_summary = data.get("voice_summary")
+        generated_tweets = data.get("tweets")
 
-        if not isinstance(voice_summary, list):
-            raise ValueError("Invalid brand voice summary.")
+        # Validate the voice summary.
+        if not isinstance(generated_summary, list):
+            raise ValueError("The AI returned an invalid voice summary.")
 
-        if not isinstance(tweets, list) or len(tweets) != 10:
+        if len(generated_summary) != 4:
             raise ValueError(
-                "The AI did not return exactly 10 tweets."
+                "The AI did not return exactly four voice observations."
             )
 
-        for tweet in tweets:
-            if (
-                not isinstance(tweet, dict)
-                or not tweet.get("text")
-                or not tweet.get("purpose")
-            ):
-                raise ValueError("A generated tweet is invalid.")
+        # Validate the tweets list.
+        if not isinstance(generated_tweets, list):
+            raise ValueError("The AI returned an invalid tweets list.")
 
-        context["voice_summary"] = voice_summary
-        context["tweets"] = tweets
-        context["generation_mode"] = "Gemini AI Generated"
+        if len(generated_tweets) != 10:
+            raise ValueError(
+                "The AI did not return exactly 10 tweets. Please try again."
+            )
 
-    except Exception as error:
-        print(
-            "BrandVoice AI generation error:",
-            repr(error),
+        validated_tweets = []
+
+        for tweet in generated_tweets:
+            if not isinstance(tweet, dict):
+                raise ValueError("The AI returned an invalid tweet.")
+
+            text = str(tweet.get("text", "")).strip()
+            purpose = str(tweet.get("purpose", "")).strip()
+
+            if not text or not purpose:
+                raise ValueError(
+                    "A generated tweet is missing its text or purpose."
+                )
+
+            if len(text) > 280:
+                raise ValueError(
+                    "A generated tweet exceeds the 280-character limit."
+                )
+
+            validated_tweets.append(
+                {
+                    "text": text,
+                    "purpose": purpose,
+                }
+            )
+
+        # Clean and validate the generated voice observations.
+        voice_summary = [
+            str(item).strip()
+            for item in generated_summary
+            if str(item).strip()
+        ]
+
+        if len(voice_summary) != 4:
+            raise ValueError(
+                "The generated brand voice summary is incomplete."
+            )
+
+        # Add AI results to the existing brand information.
+        context = {
+            **base_context,
+            "voice_summary": voice_summary,
+            "tweets": validated_tweets,
+            "generation_mode": "Gemini AI Generated",
+        }
+
+        return render(
+            request,
+            "generator/results.html",
+            context,
         )
 
-        error_text = str(error).lower()
+    except Exception as exc:
+        # Log the technical error without exposing credentials.
+        print(
+            f"BrandVoice AI generation error: "
+            f"{type(exc).__name__}: {exc}"
+        )
+
+        error_message = (
+            "We couldn't generate the tweets right now. "
+            "Please try again in a moment."
+        )
+
+        error_text = str(exc).lower()
 
         if (
             "429" in error_text
+            or "quota" in error_text
             or "resource_exhausted" in error_text
-            or "too many requests" in error_text
         ):
-            context["error"] = (
-                "The Gemini API quota has been reached. "
-                "Please wait for the quota to reset before "
-                "trying live AI generation again."
+            error_message = (
+                "The Gemini API request limit has been reached. "
+                "Please wait and try again."
             )
 
-        elif "timeout" in error_text or "timed out" in error_text:
-            context["error"] = (
-                "The AI request timed out. "
-                "Please try again later."
+        elif (
+            "timeout" in error_text
+            or "timed out" in error_text
+        ):
+            error_message = (
+                "The AI request took too long. Please try again."
             )
 
-        else:
-            context["error"] = (
-                "Tweet generation failed. "
-                "Check the VS Code terminal for details."
+        elif (
+            "json" in error_text
+            or "invalid" in error_text
+        ):
+            error_message = (
+                "The AI returned an unexpected response. "
+                "Please try generating the tweets again."
             )
 
-    return render(
-        request,
-        "generator/results.html",
-        context,
-    )
+        base_context["error"] = error_message
+
+        return render(
+            request,
+            "generator/results.html",
+            base_context,
+        )
 

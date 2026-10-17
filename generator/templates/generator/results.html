@@ -1,262 +1,710 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>BrandVoice AI | Results</title>
+    <title>BrandVoice AI | Generated Results</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --bg: #090b14;
+            --panel: #111522;
+            --panel-light: #171c2d;
+            --border: rgba(255,255,255,0.09);
+            --text: #f4f5ff;
+            --muted: #a1a8bf;
+            --purple: #9b87ff;
+            --blue: #6d9bff;
+            --green: #67e8b2;
+        }
+
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            margin: 0;
-            padding: 30px 16px;
-            font-family: Arial, sans-serif;
-            background: #f4f6fb;
-            color: #1f2937;
+            background:
+                radial-gradient(ellipse at 15% 0%, rgba(103, 76, 255, 0.16), transparent 38%),
+                radial-gradient(ellipse at 95% 20%, rgba(49, 126, 255, 0.11), transparent 32%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.7;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 900px;
+            width: min(1100px, 92%);
             margin: auto;
+            padding: 30px 0 60px;
         }
 
-        header {
-            margin-bottom: 25px;
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 28px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 42px;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--purple);
+        }
+
+        .nav-tag {
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: 1px solid rgba(103,232,178,0.25);
+            background: rgba(103,232,178,0.07);
+            padding: 7px 12px;
+            border-radius: 30px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 42px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            color: #c4b9ff;
+            background: rgba(155,135,255,0.11);
+            border: 1px solid rgba(155,135,255,0.25);
+            border-radius: 30px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.25;
         }
 
         h1 {
-            color: #4338ca;
-            margin-bottom: 8px;
+            font-size: clamp(34px, 5vw, 55px);
+            letter-spacing: -2px;
+            margin-bottom: 14px;
         }
 
-        .subtitle {
-            color: #64748b;
+        .gradient-text {
+            background: linear-gradient(100deg, #b9a9ff, #76b7ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
-        .card {
-            background: white;
-            padding: 24px;
-            margin-bottom: 20px;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        .hero p {
+            color: var(--muted);
+            max-width: 630px;
+            margin: auto;
+            font-size: 15px;
         }
 
-        h2 {
-            margin-top: 0;
-            color: #3730a3;
+        .section {
+            margin-top: 34px;
         }
 
-        .detail {
-            line-height: 1.7;
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .section-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, rgba(155,135,255,0.2), rgba(109,155,255,0.12));
+            border: 1px solid var(--border);
+            font-size: 20px;
+        }
+
+        .section-heading h2 {
+            font-size: 23px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .panel {
+            background: linear-gradient(145deg, rgba(23,28,45,0.96), rgba(15,19,32,0.96));
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 27px;
+            box-shadow: 0 18px 55px rgba(0,0,0,0.16);
+        }
+
+        .brand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            padding-bottom: 23px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 22px;
+        }
+
+        .brand-name {
+            font-size: 29px;
+            letter-spacing: -0.7px;
             overflow-wrap: anywhere;
         }
 
-        .badge {
-            display: inline-block;
-            background: #e0e7ff;
-            color: #3730a3;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 13px;
+        .brand-label {
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
-        .notice {
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-            padding: 14px;
+        .brand-badge {
+            color: #c8beff;
+            background: rgba(155,135,255,0.12);
+            border: 1px solid rgba(155,135,255,0.23);
+            padding: 7px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .profile-item {
+            padding: 17px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.018);
+            min-width: 0;
+        }
+
+        .profile-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .profile-item h3 {
+            color: #aeb7d2;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .profile-item p {
+            font-size: 14px;
+            color: #edf0ff;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .voice-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 21px;
+            border-radius: 17px;
+            display: flex;
+            gap: 14px;
+        }
+
+        .voice-number {
+            flex-shrink: 0;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
             border-radius: 10px;
-            margin-bottom: 20px;
+            color: #d4caff;
+            background: rgba(155,135,255,0.15);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
         }
 
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .voice-card p {
+            color: #c5cbe0;
+            font-size: 14px;
         }
 
-        .tweet {
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 18px;
-            margin: 15px 0;
-            background: #fafafa;
+        .tweet-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .tweet-card {
+            background: linear-gradient(150deg, #151a2b, #101421);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 21px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            min-width: 0;
+        }
+
+        .tweet-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(155,135,255,0.42);
+        }
+
+        .tweet-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tweet-number {
+            font-size: 12px;
+            font-weight: 700;
+            color: #c8bdff;
+            background: rgba(155,135,255,0.12);
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .char-count {
+            color: #8992ac;
+            font-size: 11px;
         }
 
         .tweet-text {
-            line-height: 1.7;
-            white-space: pre-wrap;
+            color: #f2f3ff;
+            font-size: 15px;
+            line-height: 1.85;
             overflow-wrap: anywhere;
+            white-space: pre-wrap;
+            margin-bottom: 18px;
         }
 
         .purpose {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        button,
-        .back-button {
             display: inline-block;
-            border: none;
-            background: #4338ca;
-            color: white;
-            padding: 11px 16px;
-            border-radius: 8px;
+            color: #a8caff;
+            background: rgba(109,155,255,0.09);
+            border: 1px solid rgba(109,155,255,0.17);
+            padding: 5px 9px;
+            border-radius: 7px;
+            font-size: 11px;
+            margin-bottom: 17px;
+        }
+
+        .tweet-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+        }
+
+        .tweet-footer small {
+            color: #8992ac;
+            font-size: 11px;
+        }
+
+        .copy-button {
+            border: 1px solid rgba(155,135,255,0.35);
+            background: rgba(155,135,255,0.1);
+            color: #d8ceff;
+            padding: 8px 12px;
+            border-radius: 9px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
             cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(155,135,255,0.22);
+        }
+
+        .copy-status {
+            color: var(--green);
+            font-size: 11px;
+            margin-top: 8px;
+            min-height: 17px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 13px;
+            margin: 38px 0 25px;
+        }
+
+        .action-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
             text-decoration: none;
+            border-radius: 12px;
+            padding: 13px 20px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
-        button:hover,
-        .back-button:hover {
-            background: #3730a3;
+        .action-button:hover {
+            transform: translateY(-2px);
         }
 
-        .back-button {
-            margin: 10px 0 30px;
+        .primary-button {
+            color: #090b14;
+            background: linear-gradient(100deg, #b7a5ff, #8bbaff);
+            border: none;
         }
 
-        footer {
-            color: #64748b;
-            font-size: 13px;
-            margin-top: 20px;
+        .secondary-button {
+            color: #e3e7fa;
+            background: #171c2d;
+            border: 1px solid var(--border);
+        }
+
+        .disclaimer {
+            color: #818aa5;
+            text-align: center;
+            font-size: 12px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .footer {
+            border-top: 1px solid var(--border);
+            margin-top: 38px;
+            padding-top: 23px;
+            text-align: center;
+            color: #77819d;
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                width: 92%;
+                padding-top: 18px;
+            }
+
+            .navbar {
+                margin-bottom: 30px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .profile-grid,
+            .voice-grid,
+            .tweet-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-header {
+                flex-direction: column;
+            }
+
+            .section-heading h2 {
+                font-size: 20px;
+            }
+
+            .tweet-card {
+                padding: 18px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .action-button {
+                width: 100%;
+            }
+        }
+
+        @media print {
+            body {
+                color: #111;
+                background: white;
+            }
+
+            .navbar,
+            .actions,
+            .copy-button,
+            .copy-status {
+                display: none !important;
+            }
+
+            .container {
+                width: 100%;
+                padding: 0;
+            }
+
+            .panel,
+            .voice-card,
+            .tweet-card,
+            .profile-item {
+                color: #111;
+                background: white;
+                border: 1px solid #ddd;
+                box-shadow: none;
+                break-inside: avoid;
+            }
+
+            h1, h2, h3, .tweet-text, .profile-item p,
+            .voice-card p, .brand-name, .disclaimer {
+                color: #111 !important;
+            }
+
+            .gradient-text {
+                color: #333;
+                background: none;
+            }
+
+            .section {
+                margin-top: 22px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <main class="container">
+<div class="container">
 
-        <header>
-            <h1>BrandVoice AI</h1>
-            <p class="subtitle">
-                Your brand voice and social media tweet generator
-            </p>
-        </header>
+    <nav class="navbar">
+        <div class="logo">BrandVoice<span>AI.</span></div>
+        <div class="nav-tag">✦ AI CONTENT STUDIO</div>
+    </nav>
 
-        {% if error %}
-            <div class="error">
-                <strong>Notice:</strong> {{ error }}
+    <header class="hero">
+        <div class="eyebrow">✦ Your AI-powered brand studio</div>
+        <h1>Your voice.<br><span class="gradient-text">Your next big idea.</span></h1>
+        <p>
+            Turn your brand identity into scroll-stopping social content.
+            Here are your AI-generated insights and tweet ideas, crafted around your campaign.
+        </p>
+    </header>
+
+    <section class="section">
+        <div class="section-heading">
+            <div class="section-icon">◈</div>
+            <div>
+                <h2>Brand Profile</h2>
+                <div class="section-subtitle">The details behind your content strategy</div>
             </div>
-        {% endif %}
+        </div>
 
-        {% if brand_name %}
-            <section class="card">
-                <h2>{{ brand_name }} — Brand Profile</h2>
-
-                <p class="detail">
-                    <strong>Industry:</strong> {{ industry }}
-                </p>
-
-                <p class="detail">
-                    <strong>Objective:</strong> {{ objective }}
-                </p>
-
-                <p class="detail">
-                    <strong>Products:</strong> {{ products }}
-                </p>
-
-                <p class="detail">
-                    <strong>Target Audience:</strong> {{ audience }}
-                </p>
-
-                <p class="detail">
-                    <strong>Preferred Tone:</strong> {{ tone }}
-                </p>
-
-                <p class="detail">
-                    <strong>Brand Description:</strong>
-                    {{ brand_description }}
-                </p>
-
-                <span class="badge">{{ voice_label }}</span>
-            </section>
-        {% endif %}
-
-        {% if generation_mode %}
-            <div class="notice">
-                <strong>Generation mode:</strong> {{ generation_mode }}
+        <div class="panel">
+            <div class="brand-header">
+                <div>
+                    <div class="brand-label">Your brand</div>
+                    <h2 class="brand-name">{{ brand_name|default:"Your Brand" }}</h2>
+                </div>
+                <div class="brand-badge">✦ {{ generation_mode|default:"AI Generated" }}</div>
             </div>
-        {% endif %}
 
-        {% if voice_summary %}
-            <section class="card">
-                <h2>Brand Voice Analysis</h2>
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <h3>Industry</h3>
+                    <p>{{ industry|default:"Not provided" }}</p>
+                </div>
 
-                <ul>
-                    {% for point in voice_summary %}
-                        <li class="detail">{{ point }}</li>
-                    {% endfor %}
-                </ul>
-            </section>
-        {% endif %}
+                <div class="profile-item">
+                    <h3>Campaign Objective</h3>
+                    <p>{{ objective|default:"Brand Awareness" }}</p>
+                </div>
 
-        {% if tweets %}
-            <section class="card">
-                <h2>Tweet Suggestions</h2>
+                <div class="profile-item">
+                    <h3>Products & Services</h3>
+                    <p>{{ products|default:"Not provided" }}</p>
+                </div>
 
-                <p>
-                    Review the suggestions below. Use the copy button
-                    to copy an individual tweet.
-                </p>
+                <div class="profile-item">
+                    <h3>Target Audience</h3>
+                    <p>{{ audience|default:"Not provided" }}</p>
+                </div>
 
-                {% for tweet in tweets %}
-                    <article class="tweet">
-                        <h3>Tweet {{ forloop.counter }}</h3>
+                <div class="profile-item">
+                    <h3>Preferred Tone</h3>
+                    <p>{{ tone|default:"AI-inferred" }}</p>
+                </div>
 
-                        <p class="tweet-text">{{ tweet.text }}</p>
+                <div class="profile-item full">
+                    <h3>Brand Description</h3>
+                    <p>{{ brand_description|default:"No brand description supplied." }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                        <p class="purpose">
-                            <strong>Purpose:</strong>
-                            {{ tweet.purpose }}
-                        </p>
+    <section class="section">
+        <div class="section-heading">
+            <div class="section-icon">✧</div>
+            <div>
+                <h2>AI-Inferred Brand Voice</h2>
+                <div class="section-subtitle">Four voice characteristics to guide your content</div>
+            </div>
+        </div>
 
+        <div class="voice-grid">
+            {% for item in voice_summary %}
+                <div class="voice-card">
+                    <div class="voice-number">{{ forloop.counter|stringformat:"02d" }}</div>
+                    <p>{{ item }}</p>
+                </div>
+            {% empty %}
+                <div class="voice-card">
+                    <p>Your brand voice insights will appear here after generation.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-heading">
+            <div class="section-icon">✎</div>
+            <div>
+                <h2>Generated Tweet Suggestions</h2>
+                <div class="section-subtitle">10 ideas designed for your campaign</div>
+            </div>
+        </div>
+
+        <div class="tweet-grid">
+            {% for tweet in tweets %}
+                <article class="tweet-card">
+                    <div class="tweet-top">
+                        <span class="tweet-number">TWEET {{ forloop.counter|stringformat:"02d" }}</span>
+                        <span class="char-count">{{ tweet.text|length }}/280 characters</span>
+                    </div>
+
+                    <p class="tweet-text">{{ tweet.text }}</p>
+
+                    <div>
+                        <span class="purpose">{{ tweet.purpose|default:"Brand content" }}</span>
+                    </div>
+
+                    <div class="tweet-footer">
+                        <small>Ready for your next post</small>
                         <button
                             type="button"
                             class="copy-button"
-                            data-tweet="{{ tweet.text }}"
-                        >
+                            data-tweet="{{ tweet.text|escape }}"
+                            onclick="copyTweet(this)">
                             Copy Tweet
                         </button>
-                    </article>
-                {% endfor %}
-            </section>
-        {% endif %}
+                    </div>
+                    <div class="copy-status" aria-live="polite"></div>
+                </article>
+            {% empty %}
+                <div class="panel">
+                    <p>No tweets were generated. Please return to the form and try again.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 
-        <a href="/" class="back-button">← Back to Form</a>
+    <div class="actions">
+        <a class="action-button primary-button" href="{% url 'home' %}">
+            ✦ &nbsp; Generate More Tweets
+        </a>
+        <button class="action-button secondary-button" type="button" onclick="window.print()">
+            ↓ &nbsp; Print / Save Results
+        </button>
+    </div>
 
-        <footer>
-            BrandVoice AI — Review all generated content before publishing.
-        </footer>
+    <p class="disclaimer">
+        BrandVoice AI generates content suggestions based on the information provided by the user.
+        Brand voice observations are inferred from those details and do not imply independent analysis
+        of the brand's social media accounts.
+    </p>
 
-    </main>
+    <footer class="footer">
+        BrandVoice AI · Find your voice. Create your impact.
+    </footer>
 
-    <script>
-        document.querySelectorAll(".copy-button").forEach(function(button) {
-            button.addEventListener("click", async function() {
-                const tweet = button.getAttribute("data-tweet");
+</div>
 
-                try {
-                    await navigator.clipboard.writeText(tweet);
-                    button.textContent = "Copied!";
+<script>
+    async function copyTweet(button) {
+        const tweet = button.getAttribute("data-tweet") || "";
+        const status = button.closest(".tweet-card").querySelector(".copy-status");
 
-                    setTimeout(function() {
-                        button.textContent = "Copy Tweet";
-                    }, 1500);
-                } catch (error) {
-                    window.prompt("Copy your tweet:", tweet);
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(tweet);
+            } else {
+                const textarea = document.createElement("textarea");
+                textarea.value = tweet;
+                textarea.style.position = "fixed";
+                textarea.style.left = "-9999px";
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+
+                const copied = document.execCommand("copy");
+                textarea.remove();
+
+                if (!copied) {
+                    throw new Error("Copy command was unsuccessful");
                 }
-            });
-        });
-    </script>
+            }
+
+            button.textContent = "✓ Copied!";
+            status.textContent = "Tweet copied to clipboard.";
+
+            setTimeout(() => {
+                button.textContent = "Copy Tweet";
+                status.textContent = "";
+            }, 1800);
+
+        } catch (error) {
+            status.textContent = "Copy failed. Please select and copy the tweet manually.";
+        }
+    }
+</script>
+
 </body>
 </html>
 
